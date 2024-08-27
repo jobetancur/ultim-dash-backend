@@ -59,6 +59,11 @@ app.post('/clicks', async (req, res) => {
     }
 });
 
+// Get prueba
+app.get('/', (req, res) => {
+    res.send('Hello World');
+});
+
 // Inicia el servidor
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
