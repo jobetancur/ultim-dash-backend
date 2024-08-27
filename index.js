@@ -1,6 +1,5 @@
 import express from 'express';
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 import { initializeApp } from "firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
@@ -8,6 +7,8 @@ import { updateDoc } from "firebase/firestore";
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const PORT = process.env.PORT || 5000;
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
