@@ -25,7 +25,8 @@ const firebaseConfig = {
 
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
-
+const firestore = getFirestore(appFirebase);
+const db2 = firestore;
 
 // Supabase
 const supabase = createClient(
@@ -72,7 +73,7 @@ const checkConversations = async () => {
 
     const { data: conversations, error } = await supabase
       .from('chat_history')
-      .select('id, agreement, messages, notification_sent')
+      .select('id, agreement, messages, notification_sent, client_number')
       .eq('agreement', false) // Obtener las conversaciones donde el acuerdo es false
       .eq('notification_sent', false); // Solo las conversaciones sin notificación enviada
   
@@ -90,7 +91,7 @@ const checkConversations = async () => {
 
         // Verifica ambas condiciones: acuerdo es false y más de 3 horas sin interacción
         if (conversation.agreement === false && timeDiff >= 1 * 60 * 1000 && timeDiff <= 3 * 60 * 1000) {
-          // Genera la notificación si no ha sido creada
+            // Genera la notificación si no ha sido creada
             if (!conversation.notification_sent) {
                 const date = new Date();
                 const options = {
@@ -118,7 +119,7 @@ const checkConversations = async () => {
                     name: 'Chat Alert',
                 };
 
-                createNotification('coltefinanciera', notification);
+                await createNotification('coltefinanciera', notification);
 
                 // Marca la conversación como notificada
                 await supabase
@@ -143,15 +144,30 @@ schedule.scheduleJob('*/1 * * * *', checkConversations);
 
 // Crear notificación
 export const createNotification = async (organizationName, notification) => {
-    const orgsRef = collection(db, 'organizations'); 
+    const orgsRef = collection(db2, 'organizations'); 
     const q = query(orgsRef, where('name', '==', organizationName)); 
     const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        console.log('No organization found with that name.');
+        return;
+    }
+
     const docSnapshot = querySnapshot.docs[0];
+    const docId = docSnapshot.id;
+
     const notifications = docSnapshot.data().notifications || [];
+    console.log('Notifications before:', notifications);
+
     notifications.push(notification);
-    await updateDoc(doc(orgsRef, docSnapshot.id), {
+
+    const docRef = doc(db2, 'organizations', docId);
+
+    await updateDoc(docRef, {
       notifications: notifications
     });
+
+    console.log('Notification created successfully');
 };
 
 // Get prueba
