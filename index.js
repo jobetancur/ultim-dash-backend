@@ -141,16 +141,17 @@ const checkConversations = async () => {
 // Programar la tarea cada minuto
 schedule.scheduleJob('*/1 * * * *', checkConversations);
 
-// Función para crear una notificación en Firebase. Se guardan en la collection organizations. Se debe ubicar la organización por su nombre. Y se debe hacer push del objeto con la notificación al array notifications.
-const createNotification = async (organizationName, notification) => {
-    try {
-        const orgDocRef = doc(db, 'organizations', organizationName);
-        await updateDoc(orgDocRef, {
-            notifications: arrayUnion(notification)
-        });
-    } catch (error) {
-        console.error('Error creating notification:', error);
-    }
+// Crear notificación
+export const createNotification = async (organizationName, notification) => {
+    const orgsRef = collection(db, 'organizations'); 
+    const q = query(orgsRef, where('name', '==', organizationName)); 
+    const querySnapshot = await getDocs(q);
+    const docSnapshot = querySnapshot.docs[0];
+    const notifications = docSnapshot.data().notifications || [];
+    notifications.push(notification);
+    await updateDoc(doc(orgsRef, docSnapshot.id), {
+      notifications: notifications
+    });
 };
 
 // Get prueba
