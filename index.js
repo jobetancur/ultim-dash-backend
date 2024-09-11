@@ -2,7 +2,7 @@ import express from 'express';
 const app = express();
 
 import { initializeApp } from "firebase/app";
-import { doc, getDoc, getFirestore, collection, query, where, updateDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc, getFirestore, collection, query, where, updateDoc, getDocs, addDoc } from "firebase/firestore";
 import dotenv from 'dotenv';
 import schedule from 'node-schedule';
 import { createClient } from '@supabase/supabase-js';
@@ -21,7 +21,6 @@ const firebaseConfig = {
     appId: process.env.FIREBASE_ID,
     measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
-
 
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
@@ -107,16 +106,16 @@ const checkConversations = async () => {
                 const formattedDate = new Intl.DateTimeFormat('es-CO', options).format(date);
                 
                 const notification = {
+                    id: uuidv4(),
+                    name: 'Chat Alert',
                     date: formattedDate,
-                    for:'pruebas@coltefinanciera.com',
+                    for: 'pruebas@coltefinanciera.com',
                     from: conversation.client_number,
                     type: 'new_message',
-                    icon: 'https://firebasestorage.googleapis.com/v0/b/ultim-admin-dashboard.appspot.com/o/avatar%2Fmessage-square-exclamation-svgrepo-com.svg?alt=media&token=c1515841-8574-4dc8-9d51-d6cfa1dd9d34',
-                    id: uuidv4(),
+                    message: 'You have unfinished conversations',
                     isArchived: false,
                     isRead: false,
-                    message: 'You have unfinished conversations',
-                    name: 'Chat Alert',
+                    icon: 'https://firebasestorage.googleapis.com/v0/b/ultim-admin-dashboard.appspot.com/o/avatar%2Fmessage-square-exclamation-svgrepo-com.svg?alt=media&token=c1515841-8574-4dc8-9d51-d6cfa1dd9d34',
                 };
 
                 await createNotification('coltefinanciera', notification);
@@ -145,6 +144,9 @@ schedule.scheduleJob('*/1 * * * *', checkConversations);
 // Crear notificación
 export const createNotification = async (organizationName, notification) => {
     const orgsRef = collection(db2, 'organizations'); 
+    // Mail Ref de Firestore
+    const mailRef = collection(db2, 'mail');
+
     const q = query(orgsRef, where('name', '==', organizationName)); 
     const querySnapshot = await getDocs(q);
 
@@ -166,6 +168,22 @@ export const createNotification = async (organizationName, notification) => {
     await updateDoc(docRef, {
       notifications: notifications
     });
+
+    const emailContent = {
+        to: ['alejobetancur2@gmail.com'], // Este es el correo de Monica de Colectora
+        message: {
+            subject: `New chat alert from ${notification.from}`,
+            text: notification.message,
+            html: `
+                <h1>New Chat Alert</h1>
+                <p>${notification.message}</p>
+                <p>From: ${notification.from}</p>
+                <p>Date: ${notification.date}</p>
+                <p>Contact the customer as soon as possible</p>
+            `
+        }
+    };
+    await addDoc(mailRef, emailContent);
 
     console.log('Notification created successfully');
 };
