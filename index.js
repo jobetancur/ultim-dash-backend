@@ -174,14 +174,14 @@ export const createNotification = async (organizationName, notification) => {
     const emailContent = {
         to: ['alejobetancur2@gmail.com'], // Este es el correo de Monica de Colectora
         message: {
-            subject: `New chat alert from ${notification.from}`,
+            subject: `Nueva alerta de chat de ${notification.from}`,
             text: notification.message,
             html: `
-                <h1>New Chat Alert</h1>
+                <h1>Nueva Alerta de Chat</h1>
                 <p>${notification.message}</p>
                 <p>From: ${notification.from}</p>
                 <p>Date: ${notification.date}</p>
-                <p>Contact the customer as soon as possible</p>
+                <p>Contacta al cliente lo antes posible.</p>
             `
         }
     };
