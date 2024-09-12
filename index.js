@@ -89,7 +89,8 @@ const checkConversations = async () => {
         const timeDiff = now - lastMessageDate; 
 
         // Verifica ambas condiciones: acuerdo es false y más de 3 horas sin interacción
-        if (conversation.agreement === false && timeDiff >= 1 * 60 * 1000 && timeDiff <= 3 * 60 * 1000) {
+        if (conversation.agreement === false && timeDiff >= 3 * 60 * 60 * 1000 && timeDiff <= 5 * 60 * 60 * 1000
+        ) {
             // Genera la notificación si no ha sido creada
             if (!conversation.notification_sent) {
                 const date = new Date();
@@ -139,7 +140,8 @@ const checkConversations = async () => {
 };
   
 // Programar la tarea cada minuto
-schedule.scheduleJob('*/1 * * * *', checkConversations);
+// schedule.scheduleJob('*/1 * * * *', checkConversations); // Cada minuto
+schedule.scheduleJob('0 * * * *', checkConversations); // Cada hora
 
 // Crear notificación
 export const createNotification = async (organizationName, notification) => {
