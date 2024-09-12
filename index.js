@@ -125,7 +125,7 @@ const checkConversations = async () => {
           id: uuidv4(),
           name: "Chat Alert",
           date: formattedDate,
-          for: "pruebas@coltefinanciera.com",
+          for: "coordinadora2@latamcolectora.com",
           from: conversation.client_number,
           type: "new_message",
           message: "You have unfinished conversations",
@@ -187,7 +187,7 @@ export const createNotification = async (organizationName, notification) => {
   });
 
   const emailContent = {
-    to: ["alejobetancur2@gmail.com"], // Este es el correo de Monica de Colectora
+    to: ["coordinadora2@latamcolectora.com"], // Este es el correo de Monica de Colectora
     message: {
       subject: `Nueva alerta de chat de ${notification.from}`,
       text: notification.message,
