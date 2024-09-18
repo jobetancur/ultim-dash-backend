@@ -229,7 +229,7 @@ export const createNotification = async (organizationName, notification) => {
 };
 
 // Get prueba
-app.get("/", (req, res) => {
+app.get("/prueba", (req, res) => {
   res.send("Hello World");
 });
 
