@@ -81,12 +81,28 @@ app.get('/delivery', async (req, res) => {
     
     console.log('Received data:', data);
 
-    // Envía una respuesta de éxito
-    res.status(200).send({
-        success: true,
-        message: 'Solicitud recibida correctamente',
-        data: data // Envío de datos recibidos en la consulta
-    });
+    // Obtener el documento existente
+    const docRef = doc(db, "organizations", "nckCUr0CEm9yShDFolKh");
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      // Obtener el array existente en sendLabsMobile
+      const existingData = docSnap.data().sendLabsMobile;
+    
+      // Agregar los nuevos datos al array
+      const updatedData = [...existingData, data];
+    
+      // Actualizar el documento con el nuevo array
+      await updateDoc(docRef, {
+          sendLabsMobile: updatedData,
+      });
+    
+      console.log("Document updated successfully");
+      res.status(200).json({ status: "success", message: "Data received" });
+    } else {
+      console.log("Document does not exist");
+      res.status(404).json({ status: "error", message: "Document not found" });
+    }
 });
 
 // Función para verificar condiciones de la conversación
