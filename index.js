@@ -66,6 +66,19 @@ app.post('/clicks', async (req, res) => {
     }
 });
 
+app.get('/delivery', async (req, res) => {
+    const data = req.query; // Cambiado de req.body a req.query
+    
+    console.log('Received data:', data);
+
+    // Envía una respuesta de éxito
+    res.status(200).send({
+        success: true,
+        message: 'Solicitud recibida correctamente',
+        data: data // Envío de datos recibidos en la consulta
+    });
+});
+
 // Función para verificar condiciones de la conversación
 const checkConversations = async () => {
     console.log('Checking conversations...');
